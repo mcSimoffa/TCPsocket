@@ -1,22 +1,16 @@
-import socket
+def start_server():
 
-# Задаем адрес сервера
-SERVER_ADDRESS = ('192.168.1.102', 6003)
+    server_config = config['Server']
 
-# Настраиваем сокет
-server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server_socket.bind(SERVER_ADDRESS)
-server_socket.listen(10)
-print('server is running, please, press ctrl+c to stop')
+    # configurations
+    HOST = server_config['HOST']
+    PORT = int(environ.get('PORT')) #server_config.getint('PORT')
+    BUFFER_SIZE = server_config.getint('BUFFER_SIZE')
 
-# Слушаем запросы
-while True:
-    connection, address = server_socket.accept()
-    print("new connection from {address}".format(address=address))
+    # server socket setup
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    server_socket.bind((HOST, PORT))
+    server_socket.listen(server_config.getint('LIMIT'))
 
-    data = connection.recv(1024)
-    print(str(data))
-
-    connection.send(bytes('Hello from server!', encoding='UTF-8'))
-
-    connection.close()
+    logging.info('server started %s:%d', HOST, PORT)
